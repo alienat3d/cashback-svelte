@@ -28,5 +28,8 @@
     "tslib": "2.6.0",
     "typescript": "5.1.6",
     "vite": "4.3.9"
+  },
+  "dependencies": {
+    "svelte-select": "5.8.3"
   }
 }

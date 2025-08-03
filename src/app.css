@@ -1,3 +1,143 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #333;
+  }
+  img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+  main {
+    margin-top: 2%;
+  }
+}
+
+@layer components {
+  .cashback__warning {
+    margin-bottom: 30px;
+    font-size: 20px;
+    font-weight: 500;
+    min-height: 30px;
+    color: goldenrod;
+  }
+
+  .cashback__inner {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .cashback__choice-inner {
+    margin-bottom: 100px;
+    display: flex;
+    width: 75%;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .cashback__cards {
+    margin: 0 auto;
+    display: flex;
+  }
+
+  .cashback__card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 300px;
+    padding: 10px 20px 20px;
+  }
+
+  .cashback__card:not(:first-of-type) {
+    border-left: 1px dotted #aaa;
+  }
+
+  .cashback__card-image {
+    border-radius: 7%;
+    border-bottom: 1px solid #bbb;
+    border-right: 1px solid #bbb;
+    margin: 0 10px 35px;
+    width: 100px;
+    text-align: center;
+  }
+
+  .cashback__categories {
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  .category-tag {
+    font-size: 18px;
+    color: #fff;
+  }
+
+  /*
+@media (min-width: 576px) {
+	
+}
+? Tablets
+@media (min-width: 768px) {
+	
+}
+@media (min-width: 992px) {
+	
+}
+? Desktops:
+@media (min-width: 1200px) {
+	
+}
+@media (min-width: 1400px) {
+	
+} */
+
+  .categories-select-wrapper {
+    margin: 0 auto;
+    width: 500px;
+  }
+
+  .categories-select-wrapper input {
+    margin-left: 5px;
+    padding: 6px;
+    display: inline-block;
+    font-size: 18px;
+  }
+
+  .svelte-select {
+    text-align: left;
+  }
+  .svelte-select:first-of-type {
+    max-width: 165px;
+  }
+
+  .svelte-select input {
+    cursor: pointer !important;
+  }
+}
+
+@layer utilities {
+  .button {
+    padding: 8px 10px;
+    border-radius: 7px;
+    font-size: 16px;
+    font-weight: 600;
+    background-color: #fff;
+  }
+
+  .container {
+    margin: 0 auto;
+    max-width: 1570px;
+    padding: 0 15px;
+
+    @media (min-width: 768px) {
+      padding: 0 10px;
+    }
+  }
+  .title {
+    text-align: center;
+    color: #fff;
+  }
+}
