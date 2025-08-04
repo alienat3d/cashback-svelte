@@ -1,44 +1,126 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import Select from 'svelte-select';
+  import html2canvas from 'html2canvas';
   import AlfaBankCard from './assets/img/alfa-bank.png';
   import TinkoffBankCard from './assets/img/tinkoff-bank.png';
   import YandexBankCard from './assets/img/ya-pay.png';
 
   const bankCards = ['Т-банк', 'Альфа банк', 'Яндекс Пэй'];
   const categories = [
-    'Все покупки',
-    'Супермаркеты',
-    'Кафе, бары и рестораны',
-    'Фастфуд',
-    'Городской транспорт',
-    'Ж/д билеты',
-    'Развлечения',
-    'Такси',
-    'Образование',
-    'Культура и искусство',
-    'Одежда и обувь',
-    'Здоровье',
-    'Цветы',
-    'Автосервис и товары для авто',
-    'Для ремонта и декор',
-    'Аптека',
+    '➗ Все покупки',
+    '🚗 Автосервис и товары для авто',
+    '💊 Аптека',
+    '🚌 Городской транспорт',
+    '🛠️ Для ремонта и декор',
+    '🚆 Ж/д билеты',
+    '🥐 Кафе, бары и рестораны',
+    '🎭 Культура и искусство',
+    '🎓 Образование',
+    '👕 Одежда и обувь',
+    '🎠 Развлечения',
+    '🛒 Супермаркеты',
+    '🚕 Такси',
+    '🍔 Фастфуд',
+    '💐 Цветы',
     'Билайн услуги',
   ];
-  categories.sort();
+  const monthNames = [
+    'Январь',
+    'Февраль',
+    'Март',
+    'Апрель',
+    'Май',
+    'Июнь',
+    'Июль',
+    'Август',
+    'Сентябрь',
+    'Октябрь',
+    'Ноябрь',
+    'Декабрь',
+  ];
 
-  $: warning = null;
-
+  let warning: string | null = null;
   let chosenBank: any = null;
   let chosenCategories: any[] = [];
   let tBankCats: any[] = [];
   let alfaCats: any[] = [];
   let yandexCats: any[] = [];
 
+  let targetElement;
+
+  const takeScreenshot = async () => {
+    if (targetElement) {
+      try {
+        const canvas = await html2canvas(targetElement, {
+          useCORS: true,
+          allowTaint: false,
+          scale: 2, // Higher quality
+          backgroundColor: null, // Transparent background
+        });
+
+        // Convert to blob and download
+        canvas.toBlob((blob) => {
+          const now = new Date();
+          const monthNumber = now.getMonth();
+          const year = now.getFullYear();
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `${monthNames[monthNumber]}_${year}.png`;
+          a.click();
+          URL.revokeObjectURL(url);
+        });
+      } catch (error) {
+        console.error('Screenshot failed:', error);
+      }
+    }
+  };
+
+  onMount(() => {
+    if (typeof localStorage !== 'undefined') {
+      try {
+        const savedData = localStorage.getItem('bankCashbackData');
+        if (savedData) {
+          const parsed = JSON.parse(savedData);
+          tBankCats = parsed.tBankCats || [];
+          alfaCats = parsed.alfaCats || [];
+          yandexCats = parsed.yandexCats || [];
+        }
+      } catch (error) {
+        console.error('Error loading from localStorage:', error);
+      }
+    }
+  });
+
+  const saveToLocalStorage = () => {
+    if (typeof localStorage !== 'undefined') {
+      try {
+        const dataToSave = {
+          tBankCats,
+          alfaCats,
+          yandexCats,
+          lastUpdated: new Date().toISOString(),
+        };
+        localStorage.setItem('bankCashbackData', JSON.stringify(dataToSave));
+      } catch (error) {
+        console.error('Error saving to localStorage:', error);
+      }
+    }
+  };
+
   const handleWarning = (msg: string | null) => (warning = msg);
 
   const clearSelects = () => {
     chosenBank = null;
     chosenCategories = [];
+  };
+
+  const cleanup = () => {
+    tBankCats = [];
+    alfaCats = [];
+    yandexCats = [];
+    saveToLocalStorage();
   };
 
   const handleSaveBtn = () => {
@@ -64,11 +146,12 @@
       yandexCats = [...chosenCategories];
     }
 
+    saveToLocalStorage();
     handleWarning(null);
     clearSelects();
   };
 
-  const handleCategoryChange = () => {
+  /* const sortCategories = () => {
     if (chosenCategories && chosenCategories.length > 0) {
       chosenCategories = chosenCategories.sort((a, b) => {
         const nameA = typeof a === 'string' ? a : a.value || a.label || a;
@@ -76,7 +159,7 @@
         return nameA.localeCompare(nameB);
       });
     }
-  };
+  }; */
 </script>
 
 <header></header>
@@ -102,13 +185,22 @@
             closeListOnChange="{false}"
             placeholder="Выберите 1 или более категорий кэшбэка"
             bind:value="{chosenCategories}"
-            on:change="{handleCategoryChange}"
           />
           <button class="button" type="button" on:click="{handleSaveBtn}"
             >Добавить</button
           >
+          <button
+            class="button button--secondary"
+            type="button"
+            on:click="{() => cleanup()}"
+          >
+            Очистить
+          </button>
         </div>
-        <div class="cashback__cards">
+        <div
+          class="cashback__cards screenshot-area"
+          bind:this="{targetElement}"
+        >
           <div class="cashback__card">
             <img
               class="cashback__card-image"
@@ -118,7 +210,7 @@
             />
             <div class="cashback__card-categories">
               {#each tBankCats as category}
-                <div class="category-tag">{category.value || category}</div>
+                <div class="category-tag">{category.value}</div>
               {/each}
             </div>
           </div>
@@ -131,7 +223,7 @@
             />
             <div class="cashback__card-categories">
               {#each alfaCats as category}
-                <div class="category-tag">{category.value || category}</div>
+                <div class="category-tag">{category.value}</div>
               {/each}
             </div>
           </div>
@@ -144,7 +236,7 @@
             />
             <div class="cashback__card-categories">
               {#each yandexCats as category}
-                <div class="category-tag">{category.value || category}</div>
+                <div class="category-tag">{category.value}</div>
               {/each}
             </div>
           </div>
@@ -152,5 +244,9 @@
       </div>
     </div>
   </section>
+
+  <button class="button mt-24" on:click="{takeScreenshot}"
+    >📷 Сделать скриншот</button
+  >
 </main>
 <footer></footer>

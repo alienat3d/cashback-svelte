@@ -30,6 +30,7 @@
     "vite": "4.3.9"
   },
   "dependencies": {
+    "html2canvas": "1.4.1",
     "svelte-select": "5.8.3"
   }
 }
